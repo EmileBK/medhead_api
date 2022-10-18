@@ -59,7 +59,7 @@ import com.medhead.medhead.Services.DataService;
 import com.medhead.medhead.utils.Utils;
 
 @RestController
-@CrossOrigin(origins = {"http://127.0.0.1:8081","http://127.0.0.1:4200"}, allowCredentials = "true")
+@CrossOrigin(origins = { "http://127.0.0.1:8081", "http://127.0.0.1:4200" }, allowCredentials = "true")
 
 public class DataController {
 
@@ -506,9 +506,8 @@ public class DataController {
         AddReservationResponse response = new AddReservationResponse();
 
         try {
-            this.validateAuth(response, headers);
             response = this.dataService.addReservation(paramsAddReservation);
-            //fixed
+            // fixed
 
         } catch (Exception e) {
             response.setExceptionMessage(e.getMessage());

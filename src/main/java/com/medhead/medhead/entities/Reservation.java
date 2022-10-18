@@ -28,6 +28,14 @@ public class Reservation {
     @JoinColumn(name = "lit", nullable = false)
     private Lit lit;
 
+    public Lit getLit() {
+        return lit;
+    }
+
+    public void setLit(Lit lit) {
+        this.lit = lit;
+    }
+
     @Column(name = "patientName", nullable = false)
     private String name;
 

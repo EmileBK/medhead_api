@@ -1,6 +1,6 @@
 package com.medhead.medhead.RequestObjects;
 
-public class AddReservationRequest {
+public class  AddReservationRequest {
 
     private long hopitalID;
     private String name;

@@ -2,12 +2,12 @@ package com.medhead.medhead.Services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
 
-import org.apache.logging.log4j.message.ExitMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -520,29 +520,41 @@ public class DataService {
 
     }
 
+    public AddReservationResponse addReservation(AddReservationRequest paramsAddReservation) {
 
-    public AddReservationResponse addReservation(AddReservationRequest paramsAddReservation)
-    {
         AddReservationResponse response = new AddReservationResponse();
-        Reservation r = new Reservation();
-        Hopital hopital = this.hopitalRepo.findById(paramsAddReservation.getHopitalID()).get();
-        Specialite specialite = this.specialiteRepo.findById(paramsAddReservation.getSpecID()).get();
-        Lit exampleLit =  new Lit();
-        exampleLit.setHopital(hopital);
-        exampleLit.setSpecialite(specialite);
-        exampleLit.setLibre(true);
-        Example <Lit> example = Example.of(exampleLit);
 
+        var hopitalID = paramsAddReservation.getHopitalID();
 
-        var choosenBed =  this.litRepo.findAll(example).get(0);
+        var hopital = this.hopitalRepo.findById(hopitalID).get();
 
+        var specialiteId = paramsAddReservation.getSpecID();
+        var specialite = this.specialiteRepo.findById(specialiteId).get();
+
+        List<Lit> lits = this.litRepo.findByHopitalIdAndSpecialiteId(hopitalID, specialiteId);
+
+        lits = lits.stream().filter(item -> item.isLibre()).collect(Collectors.toList());
+
+        var choosenBed = lits.get(0);
+        this.notifyFrontEnd(WebSocketEnums.UPDATE_LISTE_LITS.getWebSocketPath());
+
+        if (choosenBed != null) {
+            choosenBed.setReserved(true);
+            this.litRepo.save(choosenBed);
+            response.setLit(choosenBed);
+
+            Reservation r = new Reservation();
+
+            r.setHopital(hopital);
+            r.setName(paramsAddReservation.getName());
+            r.setLit(choosenBed);
+            r.setSpec(specialite);
+
+            this.reservationRepo.save(r);
+
+        }
 
         return response;
-
-    
     }
 
-    
-
 }
-    

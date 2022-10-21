@@ -2,7 +2,6 @@ package com.medhead.medhead.Services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -32,6 +31,7 @@ import com.medhead.medhead.RequestObjects.AddReservationRequest;
 import com.medhead.medhead.RequestObjects.AddSpecialiteRequest;
 import com.medhead.medhead.RequestObjects.AddSpecialiteToHospital;
 import com.medhead.medhead.RequestObjects.AddUserRequestObject;
+import com.medhead.medhead.RequestObjects.CountReservationByHopitalRequest;
 import com.medhead.medhead.RequestObjects.CountTotalLitByHopital;
 import com.medhead.medhead.RequestObjects.DeleteSpecFromHopitalRequest;
 import com.medhead.medhead.RequestObjects.GetHopitalByIdRequest;
@@ -49,6 +49,7 @@ import com.medhead.medhead.ResponseObjects.AddReservationResponse;
 import com.medhead.medhead.ResponseObjects.BaseResponse;
 import com.medhead.medhead.ResponseObjects.CountInvalidAccountsResponse;
 import com.medhead.medhead.ResponseObjects.CountLitByHopitalResponse;
+import com.medhead.medhead.ResponseObjects.CountReservationByHopitalResponse;
 import com.medhead.medhead.ResponseObjects.GetLitBySpecAndHopital;
 import com.medhead.medhead.ResponseObjects.GetSpecialiteByNameResponse;
 import com.medhead.medhead.ResponseObjects.GetAllGroupesResponse;
@@ -466,13 +467,15 @@ public class DataService {
     public RecommandationResponse getRecomandations(GetRecommandationRequest paramsRecomandation) {
         RecommandationResponse response = new RecommandationResponse();
         var specID = paramsRecomandation.getSpecID();
-
-        Lit conditionBed = new Lit();
-        conditionBed.setLibre(true);
+        /*
+         * Lit conditionBed = new Lit();
+         * conditionBed.setLibre(true);
+         * conditionBed.setReserved(false);
+         */
 
         var lits = this.litRepo.findBySpecialiteId(specID);
 
-        lits = lits.stream().filter(item -> item.isLibre())
+        lits = lits.stream().filter(item -> item.isLibre() && !item.isReserved())
                 .collect(Collectors.toList());
 
         List<Recommandation> resData = new ArrayList<Recommandation>();
@@ -533,7 +536,7 @@ public class DataService {
 
         List<Lit> lits = this.litRepo.findByHopitalIdAndSpecialiteId(hopitalID, specialiteId);
 
-        lits = lits.stream().filter(item -> item.isLibre()).collect(Collectors.toList());
+        lits = lits.stream().filter(item -> item.isLibre() && !item.isReserved()).collect(Collectors.toList());
 
         var choosenBed = lits.get(0);
         this.notifyFrontEnd(WebSocketEnums.UPDATE_LISTE_LITS.getWebSocketPath());
@@ -553,6 +556,18 @@ public class DataService {
             this.reservationRepo.save(r);
 
         }
+
+        this.notifyFrontEnd(WebSocketEnums.UPDATE_LISTE_LITS.getWebSocketPath());
+
+        return response;
+    }
+
+    public CountReservationByHopitalResponse countReservation(CountReservationByHopitalRequest paramsCount) {
+        CountReservationByHopitalResponse response = new CountReservationByHopitalResponse();
+
+        var count = this.reservationRepo.findByHopitalId(paramsCount.getHopitalID()).size();
+
+        response.setCount(count);
 
         return response;
     }

@@ -21,7 +21,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer{
     public void registerStompEndpoints(StompEndpointRegistry registry)
     {
         registry.addEndpoint("/sba-websocket")
-        .setAllowedOriginPatterns("http://127.0.0.1:8081")
+        .setAllowedOriginPatterns("http://127.0.0.1:8081", "http://127.0.0.1:4200")
         .withSockJS();
     }
     

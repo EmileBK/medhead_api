@@ -27,6 +27,7 @@ import com.medhead.medhead.RequestObjects.AddSpecialiteRequest;
 import com.medhead.medhead.RequestObjects.AddSpecialiteToHospital;
 import com.medhead.medhead.RequestObjects.AddUserRequestObject;
 import com.medhead.medhead.RequestObjects.AuthenticateRequestObject;
+import com.medhead.medhead.RequestObjects.CountReservationByHopitalRequest;
 import com.medhead.medhead.RequestObjects.CountTotalLitByHopital;
 import com.medhead.medhead.RequestObjects.DeleteSpecFromHopitalRequest;
 import com.medhead.medhead.RequestObjects.GetHopitalByIdRequest;
@@ -45,6 +46,7 @@ import com.medhead.medhead.ResponseObjects.AuthenticationResponse;
 import com.medhead.medhead.ResponseObjects.BaseResponse;
 import com.medhead.medhead.ResponseObjects.CountInvalidAccountsResponse;
 import com.medhead.medhead.ResponseObjects.CountLitByHopitalResponse;
+import com.medhead.medhead.ResponseObjects.CountReservationByHopitalResponse;
 import com.medhead.medhead.ResponseObjects.GetLitBySpecAndHopital;
 import com.medhead.medhead.ResponseObjects.GetSpecialiteByNameResponse;
 import com.medhead.medhead.ResponseObjects.GetAllGroupesResponse;
@@ -57,6 +59,8 @@ import com.medhead.medhead.ResponseObjects.GetSpecsByHopitalIDResponse;
 import com.medhead.medhead.ResponseObjects.RecommandationResponse;
 import com.medhead.medhead.Services.DataService;
 import com.medhead.medhead.utils.Utils;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @CrossOrigin(origins = { "http://127.0.0.1:8081", "http://127.0.0.1:4200" }, allowCredentials = "true")
@@ -516,5 +520,25 @@ public class DataController {
         return response;
 
     }
+
+    @PostMapping("/CountReservationByHopital")
+    public CountReservationByHopitalResponse countReservation(@RequestBody CountReservationByHopitalRequest paramsCount,
+            @RequestHeader Map<String, String> headers) {
+        CountReservationByHopitalResponse response = new CountReservationByHopitalResponse();
+
+        try {
+            this.validateAuth(response, headers);
+            response = this.dataService.countReservation(paramsCount);
+
+        } catch (Exception e) {
+            response.setExceptionMessage(e.getMessage());
+        }
+
+        return response;
+    }
+
+
+   
+    
 
 }
